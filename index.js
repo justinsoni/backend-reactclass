@@ -4,14 +4,13 @@ const cors = require("cors");
 const itemRoutes = require("./routes/itemroutes");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://your-frontend-url.onrender.com'], // Add your frontend Render URL here
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type'],
-  credentials: true
+  allowedHeaders: ['Content-Type']
 }));
 app.use(express.json());
 
@@ -25,12 +24,7 @@ mongoose.connect("mongodb+srv://justin:justin123@todo.han2ehj.mongodb.net/?retry
 // Use routes
 app.use("/api", itemRoutes);
 
-// Basic route for testing
-app.get("/", (req, res) => {
-  res.send("Todo API is running!");
-});
-
 // Start server
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
 });
