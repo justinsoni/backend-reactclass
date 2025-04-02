@@ -14,7 +14,7 @@ mongoose.connect("mongodb+srv://justin:justin123@todo.han2ehj.mongodb.net/?retry
   .catch(err => console.error(" Database connection error:", err));
 
 // Import routes
-const itemRoutes = require("../backend/routes/itemRoutes");
+const itemRoutes = require("./routes/itemRoutes");
 app.use("/api",itemRoutes);
 
 // Start server
