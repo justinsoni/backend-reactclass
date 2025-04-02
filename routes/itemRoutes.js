@@ -30,30 +30,56 @@ router.post("/", async (req, res) => {
 // Update a todo by ID
 router.put("/:id", async (req, res) => {
   try {
-    const todo = await Todo.findByIdAndUpdate(
-      req.params.id,
-      { $set: req.body },
-      { new: true }
-    );
+    // Validate request body
+    if (!req.body || (Object.keys(req.body).length === 0)) {
+      return res.status(400).json({ message: "Update data cannot be empty" });
+    }
+
+    // Validate ID format
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ message: "Invalid todo ID format" });
+    }
+
+    console.log("Update request received for ID:", req.params.id);
+    console.log("Update data:", req.body);
+    
+    const todo = await Todo.findById(req.params.id);
     if (!todo) {
       return res.status(404).json({ message: "Todo not found" });
     }
-    res.json(todo);
+
+    // Update only allowed fields
+    if (req.body.text !== undefined) todo.text = req.body.text;
+    if (req.body.completed !== undefined) todo.completed = req.body.completed;
+
+    const updatedTodo = await todo.save();
+    res.json(updatedTodo);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error("Update error:", error);
+    res.status(500).json({ message: "Error updating todo", error: error.message });
   }
 });
 
 // Delete a todo by ID
 router.delete("/:id", async (req, res) => {
   try {
-    const todo = await Todo.findByIdAndDelete(req.params.id);
+    // Validate ID format
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ message: "Invalid todo ID format" });
+    }
+
+    console.log("Delete request received for ID:", req.params.id);
+    
+    const todo = await Todo.findById(req.params.id);
     if (!todo) {
       return res.status(404).json({ message: "Todo not found" });
     }
-    res.json({ message: "Todo deleted successfully" });
+
+    await todo.deleteOne();
+    res.json({ message: "Todo deleted successfully", deletedTodo: todo });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Delete error:", error);
+    res.status(500).json({ message: "Error deleting todo", error: error.message });
   }
 });
 
